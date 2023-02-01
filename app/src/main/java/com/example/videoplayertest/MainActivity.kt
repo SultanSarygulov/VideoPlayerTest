@@ -2,6 +2,7 @@ package com.example.videoplayertest
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.media.browse.MediaBrowser
 import android.os.Build.VERSION.SDK
 import androidx.appcompat.app.AppCompatActivity
@@ -27,10 +28,12 @@ class MainActivity : AppCompatActivity() {
 
     private var exoPlayer: ExoPlayer? = null
     private lateinit var playerView: PlayerView
+    private lateinit var playerControlerLayout: RelativeLayout
 
     private var playWhenReady = true
     private var currentItem = 0
     private var playbackPosition = 0L
+    private val defaultHeight by lazy { playerView.height }
 
     private var isFullScreen = false
 
@@ -39,26 +42,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         playerView = findViewById(R.id.player_view)
+        playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
         val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
 
-        val playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
-
-        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
-        val playerParams: ViewGroup.LayoutParams = playerView.layoutParams
-
-
         fullscreenButton.setOnClickListener {
-            if (!isFullScreen){
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-                playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-                controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            requestedOrientation = if (!isFullScreen){
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             } else {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-
-                playerParams.height = 300
-                controllerParams.height = 300
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
+
             isFullScreen = !isFullScreen
         }
 
@@ -139,6 +132,25 @@ class MainActivity : AppCompatActivity() {
         WindowInsetsControllerCompat(window, playerView).let { controller ->
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
+        val playerParams: ViewGroup.LayoutParams = playerView.layoutParams
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+
+            playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+
+            playerParams.height = defaultHeight
+            controllerParams.height = defaultHeight
+
         }
     }
 
