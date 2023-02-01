@@ -144,12 +144,12 @@ class MainActivity : AppCompatActivity() {
                 controller.hide(WindowInsetsCompat.Type.systemBars())
                 controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             }
-        } else {
+        }
+        else {
             WindowCompat.setDecorFitsSystemWindows(window, true)
-            WindowInsetsControllerCompat(window, playerView).let { controller ->
-                controller.show(WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
+//            WindowInsetsControllerCompat(window, playerView).let { controller ->
+//                controller.show(WindowInsetsCompat.Type.systemBars())
+//            }
         }
         showUI = !showUI
     }
