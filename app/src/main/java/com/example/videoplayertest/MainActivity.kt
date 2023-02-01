@@ -8,6 +8,7 @@ import android.os.Build.VERSION.SDK
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -22,6 +23,7 @@ import androidx.media3.common.util.Util
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.SimpleExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     private var isFullScreen = false
 
+    @androidx.media3.common.util.UnstableApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -45,14 +48,13 @@ class MainActivity : AppCompatActivity() {
         playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
         val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
 
-        fullscreenButton.setOnClickListener {
-            requestedOrientation = if (!isFullScreen){
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
 
-            isFullScreen = !isFullScreen
+        fullscreenButton.setOnClickListener {
+            if (playerView.resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) {
+                playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+            } else {
+                playerView.resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+            }
         }
 
 
@@ -135,24 +137,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
-        val playerParams: ViewGroup.LayoutParams = playerView.layoutParams
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-            playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-            controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-
-            playerParams.height = defaultHeight
-            controllerParams.height = defaultHeight
-
-        }
-    }
+//    override fun onConfigurationChanged(newConfig: Configuration) {
+//        super.onConfigurationChanged(newConfig)
+//
+//        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
+//        val playerParams: ViewGroup.LayoutParams = playerView.layoutParams
+//
+//        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//
+//            playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+//            controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+//
+//        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+//
+//            playerParams.height = defaultHeight
+//            controllerParams.height = defaultHeight
+//
+//        }
+//    }
 
     companion object {
         val URI = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
