@@ -3,6 +3,7 @@ package com.example.videoplayertest
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.icu.lang.UCharacter.JoiningGroup.BEH
 import android.media.browse.MediaBrowser
 import android.os.Build.VERSION.SDK
 import androidx.appcompat.app.AppCompatActivity
@@ -33,9 +34,13 @@ class MainActivity : AppCompatActivity() {
     private var playWhenReady = true
     private var currentItem = 0
     private var playbackPosition = 0L
-    private val defaultHeight by lazy { playerView.height }
+
+    private val controllerParams by lazy { playerControlerLayout.layoutParams}
+    private val playerParams by lazy { playerView.layoutParams}
+    private var defaultHeight: Int? = null
 
     private var isFullScreen = false
+    private var showUI = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,14 +50,19 @@ class MainActivity : AppCompatActivity() {
         playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
         val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
 
+        defaultHeight = playerParams.height
+
         fullscreenButton.setOnClickListener {
             requestedOrientation = if (!isFullScreen){
+
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             } else {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
 
             isFullScreen = !isFullScreen
+            toggleSystemUi()
+
         }
 
 
@@ -69,7 +79,6 @@ class MainActivity : AppCompatActivity() {
     @androidx.media3.common.util.UnstableApi
     override fun onResume() {
         super.onResume()
-        hideSystemUi()
         if (Util.SDK_INT <= 23 || exoPlayer == null){
             initializePlayer()
         }
@@ -127,19 +136,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("InlinedApi")
-    private fun hideSystemUi() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, playerView).let { controller ->
-            controller.hide(WindowInsetsCompat.Type.systemBars())
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    private fun toggleSystemUi() {
+        if (!showUI){
+
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            WindowInsetsControllerCompat(window, playerView).let { controller ->
+                controller.hide(WindowInsetsCompat.Type.systemBars())
+                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+            WindowInsetsControllerCompat(window, playerView).let { controller ->
+                controller.show(WindowInsetsCompat.Type.systemBars())
+                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
         }
+        showUI = !showUI
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-
-        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
-        val playerParams: ViewGroup.LayoutParams = playerView.layoutParams
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
@@ -148,8 +164,8 @@ class MainActivity : AppCompatActivity() {
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
 
-            playerParams.height = defaultHeight
-            controllerParams.height = defaultHeight
+            playerParams.height = defaultHeight!!
+            controllerParams.height = defaultHeight!!
 
         }
     }
