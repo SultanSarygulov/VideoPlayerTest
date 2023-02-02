@@ -27,6 +27,7 @@ import androidx.media3.exoplayer.SimpleExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.RecyclerView
+import java.net.URI
 
 class MainActivity : AppCompatActivity() {
 
@@ -75,6 +76,8 @@ class MainActivity : AppCompatActivity() {
 
             mainViewModel.isFullScreen = !mainViewModel.isFullScreen
 
+//            releasePlayer()
+
         }
     }
 
@@ -92,7 +95,10 @@ class MainActivity : AppCompatActivity() {
                 val mediaItem = MediaItem.fromUri(link)
                 exoPlayer?.setMediaItem(mediaItem)
 
-                mainViewModel.currentItem = exoPlayer?.currentMediaItemIndex ?: 0
+                mainViewModel.currentItemUri = link
+
+                Log.d(TAG, "show ${mainViewModel.currentItem}")
+
             }
         }
     }
@@ -146,7 +152,13 @@ class MainActivity : AppCompatActivity() {
             .also { exoPlayer ->
                 playerView.player = exoPlayer
 
-                val mediaItem = MediaItem.fromUri(URI)
+                val uri = if (mainViewModel.currentItemUri == null){
+                    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+                } else {
+                    mainViewModel.currentItemUri
+                }
+
+                val mediaItem = MediaItem.fromUri(uri!!)
                 exoPlayer.setMediaItem(mediaItem)
 
                 exoPlayer.playWhenReady = mainViewModel.playWhenReady
@@ -168,20 +180,16 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("InlinedApi")
     private fun toggleSystemUi() {
 
-        Log.d(TAG, "toggleSystemUi")
-
         val controller =  WindowInsetsControllerCompat(window, playerView)
 
         if (mainViewModel.isFullScreen){
-
-            Log.d(TAG, "hide")
 
             WindowCompat.setDecorFitsSystemWindows(window, false)
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         } else {
 
-            Log.d(TAG, "show")
+
 
             WindowCompat.setDecorFitsSystemWindows(window, true)
             controller.show(WindowInsetsCompat.Type.systemBars())
@@ -190,7 +198,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        val URI = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+
         const val TAG = "Chura"
     }
 

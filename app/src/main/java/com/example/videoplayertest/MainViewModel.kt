@@ -11,6 +11,8 @@ class MainViewModel: ViewModel() {
 
     var defaultHeight: Int? = null
 
+    var currentItemUri: String? = null
+
     var playWhenReady = true
     var currentItem = 0
     var playbackPosition = 0L
