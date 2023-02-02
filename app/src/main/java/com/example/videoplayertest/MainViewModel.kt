@@ -6,6 +6,11 @@ import androidx.lifecycle.ViewModel
 
 class MainViewModel: ViewModel() {
 
+    var isFullScreen = false
+    var showUI = false
+
+    var defaultHeight: Int? = null
+
     var playWhenReady = true
     var currentItem = 0
     var playbackPosition = 0L

@@ -38,12 +38,10 @@ class MainActivity : AppCompatActivity() {
 
     private val controllerParams by lazy { playerControlerLayout.layoutParams}
     private val playerParams by lazy { playerView.layoutParams}
-    private var defaultHeight: Int? = null
+
 
     private lateinit var adapter: PlaylistAdapter
 
-    private var isFullScreen = false
-    private var showUI = false
 
     @androidx.media3.common.util.UnstableApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,22 +52,29 @@ class MainActivity : AppCompatActivity() {
         playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
         val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
 
-        defaultHeight = playerParams.height
+        mainViewModel.defaultHeight = playerParams.height
 
         setAdapter()
 
         fullscreenButton.setOnClickListener {
-            requestedOrientation = if (!isFullScreen){
 
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            Log.d(TAG, "isFullScreen: ${mainViewModel.isFullScreen}")
+
+            Log.d(TAG, "requestedOrientation: $requestedOrientation")
+
+            if (!mainViewModel.isFullScreen){
+
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+                playerView.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
             } else {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+                playerView.layoutParams.height = mainViewModel.defaultHeight!!
             }
 
-            isFullScreen = !isFullScreen
-            toggleSystemUi()
+            mainViewModel.isFullScreen = !mainViewModel.isFullScreen
 
-            Log.d(TAG, "initializePlayer: ")
         }
     }
 
@@ -86,9 +91,9 @@ class MainActivity : AppCompatActivity() {
             override fun onItemClick(link: String) {
                 val mediaItem = MediaItem.fromUri(link)
                 exoPlayer?.setMediaItem(mediaItem)
+
+                mainViewModel.currentItem = exoPlayer?.currentMediaItemIndex ?: 0
             }
-
-
         }
     }
 
@@ -97,6 +102,7 @@ class MainActivity : AppCompatActivity() {
         super.onStart()
         if (Util.SDK_INT > 23){
             initializePlayer()
+            toggleSystemUi()
         }
     }
     @androidx.media3.common.util.UnstableApi
@@ -104,6 +110,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (Util.SDK_INT <= 23 || exoPlayer == null){
             initializePlayer()
+            toggleSystemUi()
         }
 
     }
@@ -161,20 +168,25 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("InlinedApi")
     private fun toggleSystemUi() {
 
+        Log.d(TAG, "toggleSystemUi")
+
         val controller =  WindowInsetsControllerCompat(window, playerView)
 
-        if (!showUI){
+        if (mainViewModel.isFullScreen){
+
+            Log.d(TAG, "hide")
 
             WindowCompat.setDecorFitsSystemWindows(window, false)
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
-        else {
+        } else {
+
+            Log.d(TAG, "show")
+
             WindowCompat.setDecorFitsSystemWindows(window, true)
             controller.show(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        showUI = !showUI
     }
 
     companion object {

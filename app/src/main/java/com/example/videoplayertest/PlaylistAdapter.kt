@@ -23,14 +23,14 @@ class PlaylistAdapter: ListAdapter<String, PlaylistAdapter.PlaylistViewHolder>(V
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
-        Log.d("Chura", "onCreateViewHolder: $")
+//        Log.d("Chura", "onCreateViewHolder: $")
         val view = LayoutInflater.from((parent.context)).inflate(R.layout.video_item, parent, false)
         return PlaylistViewHolder(view)
 
     }
 
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
-        Log.d("Chura", "onBindViewHolder: $position")
+//        Log.d("Chura", "onBindViewHolder: $position")
         holder.videoText.text = getItem(position)
         holder.videoItem.setOnClickListener {
             onItemClickListener?.onItemClick(getItem(position))
