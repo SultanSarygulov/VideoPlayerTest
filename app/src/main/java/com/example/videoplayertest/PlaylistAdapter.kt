@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class PlaylistAdapter: ListAdapter<String, PlaylistAdapter.PlaylistViewHolder>(VideoLinksDiffUtil()) {
 
+    var onItemClickListener: OnItemClickListener? = null
+
     class PlaylistViewHolder(item: View): RecyclerView.ViewHolder(item){
 
 
@@ -30,5 +32,12 @@ class PlaylistAdapter: ListAdapter<String, PlaylistAdapter.PlaylistViewHolder>(V
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         Log.d("Chura", "onBindViewHolder: $position")
         holder.videoText.text = getItem(position)
+//        holder.videoItem.setOnClickListener {
+//            onItemClickListener?.onItemClick()
+//        }
+    }
+
+    interface OnItemClickListener{
+        fun onItemClick()
     }
 }

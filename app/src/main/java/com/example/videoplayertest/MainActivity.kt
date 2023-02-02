@@ -79,12 +79,13 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
 
 
-        mainViewModel._playlist.observe(this){
-            adapter.submitList(it)
-        }
-//        adapter.onItemClick = {
-//            val mediaItem = MediaItem.fromUri(it)
-//            exoPlayer?.setMediaItem(mediaItem)
+        adapter.submitList(mainViewModel.playlist)
+
+//        adapter.onItemClickListener = object : PlaylistAdapter.OnItemClickListener{
+//            override fun onItemClick() {
+//                TODO("Not yet implemented")
+//            }
+//
 //        }
     }
 

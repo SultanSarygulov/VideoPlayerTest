@@ -18,8 +18,4 @@ class MainViewModel: ViewModel() {
 
     )
 
-    val _playlist = MutableLiveData<List<String>>().apply {
-        value = playlist
-    }
-
 }
