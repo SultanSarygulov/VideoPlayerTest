@@ -32,12 +32,12 @@ class PlaylistAdapter: ListAdapter<String, PlaylistAdapter.PlaylistViewHolder>(V
     override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
         Log.d("Chura", "onBindViewHolder: $position")
         holder.videoText.text = getItem(position)
-//        holder.videoItem.setOnClickListener {
-//            onItemClickListener?.onItemClick()
-//        }
+        holder.videoItem.setOnClickListener {
+            onItemClickListener?.onItemClick(getItem(position))
+        }
     }
 
     interface OnItemClickListener{
-        fun onItemClick()
+        fun onItemClick(link: String)
     }
 }

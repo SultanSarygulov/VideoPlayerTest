@@ -81,12 +81,15 @@ class MainActivity : AppCompatActivity() {
 
         adapter.submitList(mainViewModel.playlist)
 
-//        adapter.onItemClickListener = object : PlaylistAdapter.OnItemClickListener{
-//            override fun onItemClick() {
-//                TODO("Not yet implemented")
-//            }
-//
-//        }
+        @androidx.media3.common.util.UnstableApi
+        adapter.onItemClickListener = object : PlaylistAdapter.OnItemClickListener{
+            override fun onItemClick(link: String) {
+                val mediaItem = MediaItem.fromUri(link)
+                exoPlayer?.setMediaItem(mediaItem)
+            }
+
+
+        }
     }
 
     @androidx.media3.common.util.UnstableApi
