@@ -14,9 +14,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
+import androidx.activity.viewModels
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.Util
@@ -24,6 +26,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.SimpleExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,17 +34,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var playerView: PlayerView
     private lateinit var playerControlerLayout: RelativeLayout
 
-    private var playWhenReady = true
-    private var currentItem = 0
-    private var playbackPosition = 0L
+    private val mainViewModel: MainViewModel by viewModels()
 
     private val controllerParams by lazy { playerControlerLayout.layoutParams}
     private val playerParams by lazy { playerView.layoutParams}
     private var defaultHeight: Int? = null
 
+    private lateinit var adapter: PlaylistAdapter
+
     private var isFullScreen = false
     private var showUI = false
 
+    @androidx.media3.common.util.UnstableApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -51,6 +55,8 @@ class MainActivity : AppCompatActivity() {
         val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
 
         defaultHeight = playerParams.height
+
+        setAdapter()
 
         fullscreenButton.setOnClickListener {
             requestedOrientation = if (!isFullScreen){
@@ -63,12 +69,25 @@ class MainActivity : AppCompatActivity() {
             isFullScreen = !isFullScreen
             toggleSystemUi()
 
+            Log.d(TAG, "initializePlayer: ")
         }
-
-
-
-
     }
+
+    private fun setAdapter() {
+        val recyclerView = findViewById<RecyclerView>(R.id.playlist)
+        adapter = PlaylistAdapter()
+        recyclerView.adapter = adapter
+
+
+        mainViewModel._playlist.observe(this){
+            adapter.submitList(it)
+        }
+//        adapter.onItemClick = {
+//            val mediaItem = MediaItem.fromUri(it)
+//            exoPlayer?.setMediaItem(mediaItem)
+//        }
+    }
+
     @androidx.media3.common.util.UnstableApi
     override fun onStart() {
         super.onStart()
@@ -119,17 +138,17 @@ class MainActivity : AppCompatActivity() {
                 val mediaItem = MediaItem.fromUri(URI)
                 exoPlayer.setMediaItem(mediaItem)
 
-                exoPlayer.playWhenReady = playWhenReady
-                exoPlayer.seekTo(currentItem, playbackPosition)
+                exoPlayer.playWhenReady = mainViewModel.playWhenReady
+                exoPlayer.seekTo(mainViewModel.currentItem, mainViewModel.playbackPosition)
                 exoPlayer.prepare()
             }
     }
 
     private fun releasePlayer() {
         exoPlayer?.let { exoPlayer ->
-            playbackPosition = exoPlayer.currentPosition
-            currentItem = exoPlayer.currentMediaItemIndex
-            playWhenReady = exoPlayer.playWhenReady
+            mainViewModel.playbackPosition = exoPlayer.currentPosition
+            mainViewModel.currentItem = exoPlayer.currentMediaItemIndex
+            mainViewModel.playWhenReady = exoPlayer.playWhenReady
             exoPlayer.release()
         }
         exoPlayer = null
@@ -137,41 +156,27 @@ class MainActivity : AppCompatActivity() {
 
     @SuppressLint("InlinedApi")
     private fun toggleSystemUi() {
+
+        val controller =  WindowInsetsControllerCompat(window, playerView)
+
         if (!showUI){
 
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            WindowInsetsControllerCompat(window, playerView).let { controller ->
-                controller.hide(WindowInsetsCompat.Type.systemBars())
-                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
         else {
             WindowCompat.setDecorFitsSystemWindows(window, true)
-//            WindowInsetsControllerCompat(window, playerView).let { controller ->
-//                controller.show(WindowInsetsCompat.Type.systemBars())
-//            }
+            controller.show(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
         showUI = !showUI
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-
-            playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-            controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-
-            playerParams.height = defaultHeight!!
-            controllerParams.height = defaultHeight!!
-
-        }
-    }
-
     companion object {
         val URI = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+        const val TAG = "Chura"
     }
 
 }
+
