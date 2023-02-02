@@ -8,8 +8,11 @@
         <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/drawable/ic_pause.xml" value="0.1125" />
         <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/drawable/ic_play_arrow.xml" value="0.1125" />
         <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/drawable/ic_replay.xml" value="0.1125" />
+        <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/drawable/ic_video.xml" value="0.115" />
         <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/layout/activity_main.xml" value="0.16485507246376813" />
         <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/layout/custom_controller.xml" value="0.16485507246376813" />
+        <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/layout/video_item.xml" value="0.2" />
+        <entry key="..\:/NeobisProjects/VideoPlayerTest/app/src/main/res/layout/video_preview.xml" value="0.17481884057971014" />
       </map>
     </option>
   </component>

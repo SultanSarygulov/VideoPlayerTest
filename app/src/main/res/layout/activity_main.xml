@@ -10,15 +10,24 @@
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="250dp"
-        app:controller_layout_id="@layout/custom_controller"
+        android:background="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        android:background="@color/black"
-        app:player_layout_id="@layout/exo_player_view"
         app:use_controller="true" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/playlist_rv"
+        android:layout_width="409dp"
+        android:layout_height="479dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_view" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

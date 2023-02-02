@@ -22,6 +22,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.SimpleExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,28 +40,31 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         playerView = findViewById(R.id.player_view)
-        val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
+//        val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
+//        val playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
 
-        val playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
-
-        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
+//        val controllerParams: ViewGroup.LayoutParams = playerControlerLayout.layoutParams
         val playerParams: ViewGroup.LayoutParams = playerView.layoutParams
 
+        val recyclerView = findViewById<RecyclerView>(R.id.playlist_rv)
+        val videoAdapter = VideoAdapter()
+        recyclerView.adapter = videoAdapter
 
-        fullscreenButton.setOnClickListener {
-            if (!isFullScreen){
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-                playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-                controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-            } else {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-
-                playerParams.height = 300
-                controllerParams.height = 300
-            }
-            isFullScreen = !isFullScreen
-        }
+//        fullscreenButton.setOnClickListener {
+//            if (!isFullScreen){
+//                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+//
+//                playerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+//                controllerParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+//            } else {
+//                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+//
+//                playerParams.height = 300
+//                controllerParams.height = 300
+//            }
+//            isFullScreen = !isFullScreen
+//        }
 
 
 
