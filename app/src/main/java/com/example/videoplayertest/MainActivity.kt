@@ -9,15 +9,14 @@ import android.os.Build.VERSION.SDK
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.activity.viewModels
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.*
 import androidx.lifecycle.ViewModelProvider
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
@@ -34,10 +33,11 @@ class MainActivity : AppCompatActivity() {
     private var exoPlayer: ExoPlayer? = null
     private lateinit var playerView: PlayerView
     private lateinit var playerControlerLayout: RelativeLayout
+    private lateinit var recyclerView: RecyclerView
 
     private val mainViewModel: MainViewModel by viewModels()
 
-    private val controllerParams by lazy { playerControlerLayout.layoutParams}
+//    private val controllerParams by lazy { playerControlerLayout.layoutParams}
     private val playerParams by lazy { playerView.layoutParams}
 
 
@@ -52,37 +52,27 @@ class MainActivity : AppCompatActivity() {
         playerView = findViewById(R.id.player_view)
         playerControlerLayout = findViewById<RelativeLayout>(R.id.playerController)
         val fullscreenButton = findViewById<ImageView>(R.id.bt_fullscreen)
+        recyclerView = findViewById<RecyclerView>(R.id.playlist)
 
-        mainViewModel.defaultHeight = playerParams.height
+        if (mainViewModel.defaultHeight == null){
+            mainViewModel.defaultHeight = playerParams.height
+        }
+
 
         setAdapter()
 
         fullscreenButton.setOnClickListener {
-
-            Log.d(TAG, "isFullScreen: ${mainViewModel.isFullScreen}")
-
-            Log.d(TAG, "requestedOrientation: $requestedOrientation")
-
             if (!mainViewModel.isFullScreen){
-
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-                playerView.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
             } else {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
-                playerView.layoutParams.height = mainViewModel.defaultHeight!!
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
-
             mainViewModel.isFullScreen = !mainViewModel.isFullScreen
-
-//            releasePlayer()
 
         }
     }
 
     private fun setAdapter() {
-        val recyclerView = findViewById<RecyclerView>(R.id.playlist)
         adapter = PlaylistAdapter()
         recyclerView.adapter = adapter
 
@@ -187,13 +177,18 @@ class MainActivity : AppCompatActivity() {
             WindowCompat.setDecorFitsSystemWindows(window, false)
             controller.hide(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            playerView.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            recyclerView.visibility = View.GONE
+
         } else {
-
-
 
             WindowCompat.setDecorFitsSystemWindows(window, true)
             controller.show(WindowInsetsCompat.Type.systemBars())
             controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            playerView.layoutParams.height = mainViewModel.defaultHeight!!
+            recyclerView.visibility = View.VISIBLE
         }
     }
 
