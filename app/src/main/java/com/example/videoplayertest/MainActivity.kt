@@ -26,8 +26,10 @@ import androidx.media3.exoplayer.SimpleExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.AndroidEntryPoint
 import java.net.URI
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private var exoPlayer: ExoPlayer? = null
@@ -58,18 +60,26 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.defaultHeight = playerParams.height
         }
 
+        playerView.player = mainViewModel.player
+
+        playVideo()
 
         setAdapter()
 
         fullscreenButton.setOnClickListener {
-            if (!mainViewModel.isFullScreen){
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            requestedOrientation = if (!mainViewModel.isFullScreen){
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             } else {
-                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             }
             mainViewModel.isFullScreen = !mainViewModel.isFullScreen
 
         }
+    }
+
+    @androidx.media3.common.util.UnstableApi
+    private fun playVideo() {
+        mainViewModel.playVideo(mainViewModel.currentItem ?: mainViewModel.firstItem)
     }
 
     private fun setAdapter() {
@@ -83,11 +93,9 @@ class MainActivity : AppCompatActivity() {
         adapter.onItemClickListener = object : PlaylistAdapter.OnItemClickListener{
             override fun onItemClick(link: String) {
                 val mediaItem = MediaItem.fromUri(link)
-                exoPlayer?.setMediaItem(mediaItem)
 
-                mainViewModel.currentItemUri = link
-
-                Log.d(TAG, "show ${mainViewModel.currentItem}")
+                mainViewModel.currentItem = mediaItem
+                mainViewModel.player.setMediaItem(mediaItem)
 
             }
         }
@@ -97,75 +105,65 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         if (Util.SDK_INT > 23){
-            initializePlayer()
+//            initializePlayer()
             toggleSystemUi()
         }
     }
-    @androidx.media3.common.util.UnstableApi
-    override fun onResume() {
-        super.onResume()
-        if (Util.SDK_INT <= 23 || exoPlayer == null){
-            initializePlayer()
-            toggleSystemUi()
-        }
-
-    }
+//    @androidx.media3.common.util.UnstableApi
+//    override fun onResume() {
+//        super.onResume()
+//        if (Util.SDK_INT <= 23 || exoPlayer == null){
+//            initializePlayer()
+//            toggleSystemUi()
+//        }
+//    }
 
 
     @androidx.media3.common.util.UnstableApi
     override fun onPause() {
         super.onPause()
-        if (Util.SDK_INT <= 23) {
-            releasePlayer()
-        }
+        mainViewModel.player.pause()
     }
 
     @androidx.media3.common.util.UnstableApi
     override fun onStop() {
         super.onStop()
-        if (Util.SDK_INT > 23) {
-            releasePlayer()
-        }
+
+        mainViewModel.playbackPosition = mainViewModel.player.currentPosition
+        mainViewModel.currentItemIndex = mainViewModel.player.currentMediaItemIndex
+        mainViewModel.playWhenReady = mainViewModel.player.playWhenReady
     }
 
-    @androidx.media3.common.util.UnstableApi
-    private fun initializePlayer() {
+//    @androidx.media3.common.util.UnstableApi
+//    private fun initializePlayer() {
+//
+//        exoPlayer = ExoPlayer.Builder(this)
+//            .build()
+//            .also { exoPlayer ->
+//                playerView.player = exoPlayer
+//
+//                val uri = if (mainViewModel.currentItemUri == null){
+//                    mainViewModel.playlist[0]
+//                } else {
+//                    mainViewModel.currentItemUri
+//                }
+//
+//                val mediaItem = MediaItem.fromUri(uri!!)
+//                exoPlayer.setMediaItem(mediaItem)
+//
+//                exoPlayer.playWhenReady = mainViewModel.playWhenReady
+//                exoPlayer.seekTo(mainViewModel.currentItem, mainViewModel.playbackPosition)
+//                exoPlayer.prepare()
+//            }
+//    }
 
-        // Set right track to save user's data
-        val trackSelector = DefaultTrackSelector(this).apply {
-            setParameters(buildUponParameters().setMaxVideoSizeSd())
-        }
+//    private fun releasePlayer() {
+//        exoPlayer?.let { exoPlayer ->
 
-        exoPlayer = ExoPlayer.Builder(this)
-            .setTrackSelector(trackSelector)
-            .build()
-            .also { exoPlayer ->
-                playerView.player = exoPlayer
-
-                val uri = if (mainViewModel.currentItemUri == null){
-                    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-                } else {
-                    mainViewModel.currentItemUri
-                }
-
-                val mediaItem = MediaItem.fromUri(uri!!)
-                exoPlayer.setMediaItem(mediaItem)
-
-                exoPlayer.playWhenReady = mainViewModel.playWhenReady
-                exoPlayer.seekTo(mainViewModel.currentItem, mainViewModel.playbackPosition)
-                exoPlayer.prepare()
-            }
-    }
-
-    private fun releasePlayer() {
-        exoPlayer?.let { exoPlayer ->
-            mainViewModel.playbackPosition = exoPlayer.currentPosition
-            mainViewModel.currentItem = exoPlayer.currentMediaItemIndex
-            mainViewModel.playWhenReady = exoPlayer.playWhenReady
-            exoPlayer.release()
-        }
-        exoPlayer = null
-    }
+//            exoPlayer.release()
+//        }
+//        exoPlayer = null
+//    }
 
     @SuppressLint("InlinedApi")
     private fun toggleSystemUi() {
