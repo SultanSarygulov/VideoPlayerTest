@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:name=".di.MainApplication"
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

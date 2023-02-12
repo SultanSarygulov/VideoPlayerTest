@@ -78,7 +78,6 @@ dependencies {
 
     implementation files('libs/YouTubeAndroidPlayerApi.jar')
 
-
 //    implementation 'com.google.android.exoplayer:exoplayer-common:2.15.0'
 }
 kapt {
